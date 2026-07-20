@@ -1,0 +1,108 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: adhera
+      POSTGRES_PASSWORD: adhera_dev_password
+      POSTGRES_DB: adhera
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infrastructure/docker/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adhera"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: adhera
+      RABBITMQ_DEFAULT_PASS: adhera_dev_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    environment:
+      SERVICE_NAME: api-gateway
+      REDIS_URL: redis://redis:6379/0
+      IDENTITY_SERVICE_URL: http://identity-service:8000
+      MEDICATION_SERVICE_URL: http://medication-service:8000
+      NOTIFICATION_SERVICE_URL: http://notification-service:8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  identity-service:
+    build:
+      context: .
+      dockerfile: services/identity-service/Dockerfile
+    environment:
+      SERVICE_NAME: identity-service
+      DATABASE_URL: postgresql+asyncpg://adhera:adhera_dev_password@postgres:5432/identity
+      REDIS_URL: redis://redis:6379/1
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  medication-service:
+    build:
+      context: .
+      dockerfile: services/medication-service/Dockerfile
+    environment:
+      SERVICE_NAME: medication-service
+      DATABASE_URL: postgresql+asyncpg://adhera:adhera_dev_password@postgres:5432/medication
+      REDIS_URL: redis://redis:6379/2
+      RABBITMQ_URL: amqp://adhera:adhera_dev_password@rabbitmq:5672//
+    ports:
+      - "8002:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    environment:
+      SERVICE_NAME: notification-service
+      DATABASE_URL: postgresql+asyncpg://adhera:adhera_dev_password@postgres:5432/notification
+      REDIS_URL: redis://redis:6379/3
+      RABBITMQ_URL: amqp://adhera:adhera_dev_password@rabbitmq:5672//
+    ports:
+      - "8003:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

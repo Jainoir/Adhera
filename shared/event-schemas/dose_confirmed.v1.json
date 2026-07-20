@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DoseConfirmed",
+  "type": "object",
+  "required": ["event_id", "event_type", "event_version", "occurred_at", "correlation_id", "dose_instance_id", "patient_id", "status", "confirmation_method"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"const": "DoseConfirmed"},
+    "event_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string", "format": "uuid"},
+    "dose_instance_id": {"type": "string", "format": "uuid"},
+    "patient_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["CONFIRMED_TAKEN", "CONFIRMED_SKIPPED", "CONFIRMED_DELAYED"]},
+    "confirmation_method": {"enum": ["APP_BUTTON", "VOICE", "QR_CODE", "NFC", "CAREGIVER", "MANUAL_CORRECTION"]}
+  }
+}

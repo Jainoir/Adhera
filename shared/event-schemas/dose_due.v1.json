@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DoseDue",
+  "type": "object",
+  "required": ["event_id", "event_type", "event_version", "occurred_at", "correlation_id", "dose_instance_id", "patient_id", "medication_id", "scheduled_at"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"const": "DoseDue"},
+    "event_version": {"const": 1},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "correlation_id": {"type": "string", "format": "uuid"},
+    "dose_instance_id": {"type": "string", "format": "uuid"},
+    "patient_id": {"type": "string", "format": "uuid"},
+    "medication_id": {"type": "string", "format": "uuid"},
+    "scheduled_at": {"type": "string", "format": "date-time"}
+  }
+}
