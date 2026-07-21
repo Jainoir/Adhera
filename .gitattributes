@@ -1,0 +1,4 @@
+# Shell scripts are executed inside Linux containers — they must stay LF
+# even on Windows checkouts (core.autocrlf would otherwise rewrite them).
+*.sh text eol=lf
+Makefile text eol=lf

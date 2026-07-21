@@ -14,12 +14,28 @@ ignore = ["S101"]  # allow assert in tests
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/**" = ["S105", "S106"]
+# `shared.logging` intentionally mirrors the stdlib name; absolute imports
+# keep it unambiguous.
+"shared/logging/__init__.py" = ["A005"]
 
 [tool.mypy]
 python_version = "3.13"
 strict = true
 ignore_missing_imports = true
+mypy_path = "."
+exclude = ['(^|/)alembic($|/)']
+
+[[tool.mypy.overrides]]
+# Testcontainers ships incomplete type information.
+module = ["shared.test_utils", "test_smoke"]
+disallow_untyped_calls = false
+disallow_any_generics = false
+warn_return_any = false
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-testpaths = ["services", "tests", "shared"]
+testpaths = ["tests"]
+addopts = "-m \"not integration\""
+markers = [
+    "integration: requires Docker (Testcontainers); run via `make test-integration`",
+]

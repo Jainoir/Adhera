@@ -6,8 +6,13 @@ COPY services/medication-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY services/medication-service/app ./app
+COPY services/medication-service/alembic ./alembic
+COPY services/medication-service/alembic.ini ./alembic.ini
+COPY services/medication-service/entrypoint.sh ./entrypoint.sh
 COPY shared ./shared
+
+RUN chmod +x ./entrypoint.sh
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["./entrypoint.sh"]

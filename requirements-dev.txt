@@ -1,0 +1,15 @@
+# Development / CI toolchain. Includes every service's runtime deps so one
+# environment can lint, type-check, and test the whole monorepo.
+-r services/api-gateway/requirements.txt
+-r services/identity-service/requirements.txt
+-r services/medication-service/requirements.txt
+-r services/notification-service/requirements.txt
+
+ruff>=0.8
+mypy>=1.13
+pytest>=8.3
+pytest-asyncio>=0.24
+pytest-mock>=3.14
+httpx>=0.27
+jsonschema[format-nongpl]>=4.23
+testcontainers[postgres,redis,rabbitmq]>=4.8

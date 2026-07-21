@@ -1,14 +1,13 @@
 """Environment-driven configuration for the API Gateway."""
 
-from pydantic_settings import BaseSettings
+from shared.config import BaseServiceSettings
 
 
-class Settings(BaseSettings):
+class Settings(BaseServiceSettings):
     service_name: str = "api-gateway"
-    debug: bool = False
-    database_url: str = ""
-    redis_url: str = ""
-    rabbitmq_url: str = ""
+    identity_service_url: str = "http://localhost:8001"
+    medication_service_url: str = "http://localhost:8002"
+    notification_service_url: str = "http://localhost:8003"
 
 
 settings = Settings()
